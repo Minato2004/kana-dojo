@@ -1,5 +1,6 @@
 'use client';
 import clsx from 'clsx';
+import { motion } from 'framer-motion';
 import useKanjiStore from '@/features/Kanji/store/useKanjiStore';
 import useVocabStore from '@/features/Vocabulary/store/useVocabStore';
 import { usePathname } from 'next/navigation';
@@ -111,47 +112,61 @@ const CollectionSelector = () => {
   return (
     <div className='flex flex-col'>
       {/* Modern Toggle-Style Unit Selector */}
-      <div className='flex rounded-2xl bg-[var(--card-color)] p-4 gap-4 flex-col md:flex-row'>
+      <div className='flex flex-col gap-4 rounded-2xl bg-[var(--card-color)] p-4 md:flex-row'>
         {collections.map(collection => {
           const isSelected = collection.name === selectedCollection;
 
           return (
-            <ActionButton
-              key={collection.name}
-              onClick={() => handleCollectionSelect(collection.name)}
-              colorScheme={isSelected ? 'main' : undefined}
-              borderColorScheme={isSelected ? 'main' : undefined}
-              borderBottomThickness={isSelected ? 10 : 0}
-              borderRadius='3xl'
-              className={clsx(
-                'flex-1 px-4 py-3 flex-col gap-1',
-                isSelected
-                  ? 'bg-[var(--main-color)]/80'
-                  : 'bg-transparent text-[var(--main-color)] hover:bg-[var(--border-color)]/50'
+            <div key={collection.name} className='relative flex-1'>
+              {/* Sliding indicator - provides visible background for selected state */}
+              {isSelected && (
+                <motion.div
+                  layoutId='collection-selector-indicator'
+                  className='absolute inset-0 rounded-3xl border-b-10 border-[var(--main-color-accent)] bg-[var(--main-color)]/80'
+                  transition={{
+                    type: 'spring',
+                    stiffness: 450,
+                    damping: 30,
+                    mass: 1
+                  }}
+                />
               )}
-            >
-              <div className='flex items-center gap-2'>
-                <span className='text-xl'>{collection.displayName}</span>
-                <span
-                  className={clsx(
-                    'text-xs px-1.5 py-0.5 rounded',
-                    'bg-[var(--border-color)] text-[var(--secondary-color)]'
-                  )}
-                >
-                  {collection.jlpt}
-                </span>
-              </div>
-              <span
+              <ActionButton
+                onClick={() => handleCollectionSelect(collection.name)}
+                colorScheme={isSelected ? undefined : undefined}
+                borderColorScheme={isSelected ? undefined : undefined}
+                borderBottomThickness={0}
+                borderRadius='3xl'
                 className={clsx(
-                  'text-xs',
+                  'relative z-10 w-full flex-col gap-1 px-4 pt-4 pb-6',
                   isSelected
-                    ? 'text-[var(--background-color)]/80'
-                    : 'text-[var(--secondary-color)]/80'
+                    ? 'bg-transparent text-[var(--background-color)]'
+                    : 'bg-transparent text-[var(--main-color)] hover:bg-[var(--border-color)]/50'
                 )}
               >
-                {collection.subtitle}
-              </span>
-            </ActionButton>
+                <div className='flex items-center gap-2'>
+                  <span className='text-xl'>{collection.displayName}</span>
+                  <span
+                    className={clsx(
+                      'rounded px-1.5 py-0.5 text-xs',
+                      'bg-[var(--border-color)] text-[var(--secondary-color)]'
+                    )}
+                  >
+                    {collection.jlpt}
+                  </span>
+                </div>
+                <span
+                  className={clsx(
+                    'text-xs',
+                    isSelected
+                      ? 'text-[var(--background-color)]/80'
+                      : 'text-[var(--secondary-color)]/80'
+                  )}
+                >
+                  {collection.subtitle}
+                </span>
+              </ActionButton>
+            </div>
           );
         })}
       </div>
